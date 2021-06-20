@@ -74,7 +74,7 @@ if(cluster.isMaster && process.argv[3]=="CLUSTER") {
         cluster.fork();
     });
 } else {
-    const port = process.argv[2] || '8080';
+    const port = process.env.PORT || '8080';
     app.set('port', port);
     server.listen(port);
     console.log('Server listening on port ' + port +' pid:' + process.pid);
