@@ -1,26 +1,31 @@
-const Usuarios = require('../models/usuarios');
 var mongoose = require('mongoose');
 mongoose.set('useCreateIndex', true);
-
+const User = require('../models/usuarios');
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const FacebookStrategy = require('passport-facebook').Strategy
+const bcrypt = require('bcrypt');
 const config = require("../config/configFacebook");
-let usuarios =[];
+
+const isValidPassword = function(user,password){
+  return bcrypt.compareSync(password,user.password)
+}
+const createHash = function(password){
+  return bcrypt.hashSync(password,bcrypt.genSaltSync(10),null)
+}
 
 passport.use('login', new LocalStrategy({
     passReqToCallback : true
   },
   function(req, username, password, done) { 
-
-    //busco usuario
-    let user = usuarios.find(usuario => usuario.username==username)
-    if(!user) return done(null, false) 
-    //valido password
-    let credencialesOk = user.username==username && user.password==password
-    if(!credencialesOk) return done(null, false) 
-
-    return done(null, user);
+    User.findOne({'username':username},
+    function(err,user){
+      if(err) return done(err)
+      if(!user) return done (null,false)
+      if(!isValidPassword(user,password)) return done(null,false)
+      return done(null,user)
+    })
+    
   })
 );
 
@@ -29,47 +34,71 @@ passport.use('register', new LocalStrategy({
   },
   function(req, username, password, done) {
     findOrCreateUser = function(){
-        //busco usuario
-        let usuario = usuarios.find(usuario => usuario.username==username)
-        if(usuario) return done(null, false)
-        //sino existe lo creo
-        let user = {};
-        user.username = username;
-        user.password = password; 
-        user.contador = 0;
-        usuarios.push(user)
-        return done(null, user);
+        
+      User.findOne({'username':username},
+      function(err,user){
+        if(err) return done(err)
+        if(user) {
+          return done (null,false)
+        }else{
+          var newUser= new User()
+          newUser.username=username
+          newUser.password=createHash(password)
+          newUser.save(function(err){
+            if(err){ throw err}
+            return done(null,newUser)
+          })
+          
+        }
+      })
+      
     }
     process.nextTick(findOrCreateUser);
   })
 )
  
 passport.use('facebook', new FacebookStrategy({
-    clientID: config.facebook.clientID,
-    clientSecret: config.facebook.clientSecret,
-    callbackURL: "/facebook/callback"
-  }, (accessToken, refreshToken, profile, done) => {
-        let user = {};
-        user.username = profile.displayName;
-        user.password = profile.id;
-       
-        let usuario = usuarios.find(usuario => usuario.username==profile.displayName)
-        if(!usuario){
-            user.contador = 0;
-            usuarios.push(user); 
-        }
-       
-    return done(null, user);
-  }))
+  clientID: config.facebook.clientID,
+  clientSecret: config.facebook.clientSecret,
+  callbackURL: "/facebook/callback"
+}, (accessToken, refreshToken, profile, done) => {
+  let userFace = {}
+  userFace.username = profile.displayName;
+  userFace.password = profile.id;
+  findOrCreateUser = function(){
+        
+    User.findOne({'username': userFace.username},
+    function(err,user){
+      if(err) return done(err)
+      if(user) {
+        return done (null,user)
+      }else{
+        var newUser= new User()
+        newUser.username=userFace.username
+        newUser.password=createHash(userFace.password)
+        newUser.save(function(err){
+          if(err){ throw err}
+          return done(null,newUser)
+        })
+        
+      }
+    })
+    
+  }
+  process.nextTick(findOrCreateUser);
+  
+}))
  
 
 passport.serializeUser(function(user, done) {
-    done(null, user.username);
+    done(null, user._id);
 });
    
-  passport.deserializeUser(function(username, done) {
-    let usuario = usuarios.find(usuario => usuario.username == username)
-      done(null, usuario)
+passport.deserializeUser(function(id, done) {
+    User.findById(id,function (err,user){
+      done(null, user)
+    })
+      
 });
 
 

@@ -2,9 +2,9 @@
   "name": "mvc_maxi",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "nodemon server",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prod": "forever start -w server.js",
     "fork": "pm2 start server.js --name='Server1' --watch -- 8081",
@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "connect-mongo": "^4.4.1",

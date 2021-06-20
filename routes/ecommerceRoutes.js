@@ -7,20 +7,20 @@ const passport = require("passport");
 
 module.exports = app => {
   
-  app.get("/agregar",ProductosController.agregar)
-
-  app.get("/failLogin", (req, res) => { res.send("falla al logear")});
-  app.post("/login", passport.authenticate('login', {failureRedirect: 'failLogin'}), sessionController.login);
-  app.get("/failRegister", (req, res) => { res.send("falla al registrar")});
-  app.post("/register", passport.authenticate('register', {failureRedirect: 'failRegister'}), sessionController.register);
+  
+  app.get("/login",sessionController.vistalogin)
+  app.get("/registro",sessionController.vistaregistro)
   app.get("/logout", sessionController.logout);
+  app.get("/failLogin", (req, res) => { res.send("falla al logear")});
+  app.get("/failRegister", (req, res) => { res.send("falla al registrar")});
+  app.post("/login", passport.authenticate('login', {failureRedirect: 'failLogin'}), sessionController.login);
+  app.post("/register", passport.authenticate('register', {failureRedirect: 'failRegister'}), sessionController.register);
+
   app.get("/facebook", passport.authenticate("facebook"));
-  app.get("/facebook/callback", passport.authenticate('facebook', {successRedirect: 'http://localhost:3000', failureRedirect: 'http://localhost:3000/error'}));
+  app.get("/facebook/callback", passport.authenticate('facebook', {successRedirect: '/agregar', failureRedirect: '/login'}));
 
-  app.get('/contenido',middlewareAdmin.auth,(req,res) =>{
-    res.send("contenido para ver")
-})
 
+  app.get("/agregar",middlewareAdmin.auth,ProductosController.agregar)
   app.get('/',ProductosController.getProductos);
   app.get('/producto/:id',ProductosController.getProducto);
   app.post('/productos', ProductosController.createProductos);
