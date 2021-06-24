@@ -1,4 +1,5 @@
 const Producto = require('../models/productos');
+const Mensaje = require('../models/mensajes');
 var mongoose = require('mongoose');
 mongoose.set('useCreateIndex', true);
 
@@ -26,12 +27,11 @@ catch (e) { console.log(e) }
     let id = req.params.id;
     try{
        producto = await Producto.find({_id: id}).lean()
-       console.log(producto[0])
-       await res.render(`producto`, {producto: producto}) 
+       mensaje = await Mensaje.find({articulo: id}).lean()
+       await res.render(`producto`, {producto: producto,mensaje:mensaje}) 
     }
     catch (e) { console.log(e) } 
     }
-
 
   exports.createProductos = async (req, res, next) => {  
     console.log(req.body)

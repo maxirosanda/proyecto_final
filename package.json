@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prod": "forever start -w server.js",
     "fork": "pm2 start server.js --name='Server1' --watch -- 8081",

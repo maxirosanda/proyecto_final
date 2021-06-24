@@ -33,6 +33,5 @@ module.exports = app => {
   app.put('/carrito/:id',CarritoController.updateCarrito);
   app.delete('/carrito/:id', CarritoController.deleteCarrito);
 
-  app.get('/mensajes', MensajesController.getMensajes);
   app.post('/mensajes', MensajesController.createMensajes);
 };

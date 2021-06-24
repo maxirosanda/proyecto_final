@@ -18,9 +18,21 @@
 <input type="number" class="form-control" style="width: 25%" name="cant_compra" min="1" value="1" max={{stock}} aria-describedby="emailHelp" required>
 <button type="submit" class="btn btn-primary my-5">Agregar al Carrito</button>
       </form>
+  <h2>Consultas sobre el producto</h2>
+  <form action="/mensajes" method="POST" class="my-5">
+  <input type="text" class="form-control mb-4" name="mail"  aria-describedby="emailHelp" placeholder="Ingrese su mail"> 
+  <textarea type="text" class="form-control" name="mensaje"  aria-describedby="emailHelp" placeholder="Ingrese mensaje"></textarea>
+  <input type="hidden" class="form-control" name="articulo" value={{_id}} aria-describedby="emailHelp">
+ 
+<button type="submit" class="btn btn-primary my-5">Enviar Mensaje</button>
+      </form>
   </div>
 </div>
 
     {{/each}}
-
+ <ul class="list-group">
+ {{#each mensaje}}
+  <li class="list-group-item"><b>{{mail}}</b>:{{mensaje}}</li>
+ {{/each}}
+ </ul>
   </div>
